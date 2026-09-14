@@ -14,99 +14,67 @@
             --card-bg: rgba(255, 255, 255, 0.03);
             --card-border: rgba(255, 255, 255, 0.08);
         }
-
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
-            background: var(--bg-grad);
-            color: #ffffff;
-            text-align: center;
-            margin: 0;
-            padding: 15px;
-            user-select: none;
-            -webkit-user-select: none;
-            overflow-x: hidden;
+            background: var(--bg-grad); color: #ffffff; text-align: center; margin: 0; padding: 15px;
+            user-select: none; -webkit-user-select: none; overflow-x: hidden;
         }
-
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
+        .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
         .stat-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 10px 4px;
-            border-radius: 14px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            backdrop-filter: blur(10px);
+            background: var(--card-bg); border: 1px solid var(--card-border); padding: 10px 4px;
+            border-radius: 14px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; backdrop-filter: blur(10px);
         }
-        
         #click-power { color: #00f2fe; border-color: rgba(0, 242, 254, 0.2); }
         #cps-view { color: #ff007f; border-color: rgba(255, 0, 127, 0.2); }
         #crystals-view { color: #00ff87; border-color: rgba(0, 255, 135, 0.2); font-weight: bold; }
-
         .counter-container { margin: 15px 0; }
         .counter-label { font-size: 12px; text-transform: uppercase; color: #8888a0; letter-spacing: 2px; }
         .counter {
-            font-size: 48px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(0, 242, 254, 0.3);
-            margin-top: 5px;
-            word-break: break-all;
+            font-size: 44px; font-weight: 900; background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 242, 254, 0.3); margin-top: 5px; word-break: break-all;
         }
-
         .click-zone { display: flex; justify-content: center; align-items: center; height: 180px; margin-bottom: 15px; }
         .tap-btn {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: none;
-            background: radial-gradient(circle at 30% 30%, #00f2fe 0%, #4facfe 100%);
-            color: white;
-            font-size: 26px;
-            font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 0 40px rgba(0, 242, 254, 0.4), inset -10px -10px 20px rgba(0,0,0,0.3);
-            transition: transform 0.05s ease;
+            width: 150px; height: 150px; border-radius: 50%; border: none;
+            background: radial-gradient(circle at 30% 30%, #00f2fe 0%, #4facfe 100%); color: white;
+            font-size: 22px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 0 40px rgba(0, 242, 254, 0.4), inset -10px -10px 20px rgba(0,0,0,0.3); transition: transform 0.05s ease;
         }
         .tap-btn:active { transform: scale(0.92); }
+        
+        /* Блок промокодов */
+        .promo-box {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            padding: 12px; border-radius: 18px; margin-bottom: 15px; display: flex; gap: 8px;
+        }
+        .promo-input {
+            flex: 1; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--card-border);
+            border-radius: 12px; color: #fff; padding: 10px; font-size: 13px; outline: none;
+            text-transform: uppercase; text-align: center; font-weight: bold; letter-spacing: 1px;
+        }
+        .promo-btn {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #000;
+            border: none; border-radius: 12px; font-weight: 800; padding: 0 16px; cursor: pointer; font-size: 13px;
+        }
 
         .reset-btn {
-            background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
-            color: white;
-            border: none;
-            padding: 14px;
-            font-size: 14px;
-            font-weight: 700;
-            border-radius: 16px;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(255, 8, 68, 0.3);
+            background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; border: none;
+            padding: 14px; font-size: 14px; font-weight: 700; border-radius: 16px; cursor: pointer; width: 100%;
+            margin-bottom: 20px; box-shadow: 0 4px 15px rgba(255, 8, 68, 0.3);
         }
         .reset-btn:disabled { background: #202030; color: #555565; box-shadow: none; cursor: not-allowed; opacity: 0.4; }
-
         .shop { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); padding: 16px; border-radius: 24px; }
         .shop-title { font-size: 15px; font-weight: 700; color: #a5b4fc; text-align: left; margin-bottom: 15px; }
         .shop-grid { display: flex; flex-direction: column; gap: 10px; max-height: 38vh; overflow-y: auto; padding-right: 4px; }
         .shop-grid::-webkit-scrollbar { width: 4px; }
         .shop-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-
-        .section-title { font-size: 11px; font-weight: 700; color: #6366f1; text-align: left; margin: 8px 0 4px 0; text-transform: uppercase; }
-
         .shop-btn {
             background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); color: white;
             padding: 14px; font-size: 13px; border-radius: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
         }
         .shop-btn:not(:disabled):hover { background: rgba(255, 255, 255, 0.07); }
-        .shop-btn .info { display: flex; flex-direction: column; gap: 2px; }
+        .shop-btn .info { display: flex; flex-direction: column; gap: 2px; text-align: left; }
         .shop-btn .info .name { font-weight: 600; color: #f3f4f6; }
         .shop-btn .info .bonus { font-size: 11px; color: #9ca3af; }
         .shop-btn .cost { font-weight: 700; color: #00ff87; background: rgba(0, 255, 135, 0.1); padding: 6px 12px; border-radius: 10px; font-size: 12px; }
@@ -115,56 +83,151 @@
     </style>
 </head>
 <body>
-
     <div class="stats-container">
         <div class="stat-card" id="click-power">👆 Клик: +1</div>
         <div class="stat-card" id="cps-view">⚙️ Авто: 0/с</div>
-        <div class="stat-card" id="crystals-view">💎 Кристаллы: 0</div>
+        <div class="stat-card" id="crystals-view">💎 Алмазы: 0</div>
     </div>
-
     <div class="counter-container">
         <div class="counter-label">Текущий Опыт</div>
         <div class="counter" id="exp-counter">0 XP</div>
     </div>
+    <div class="click-zone"><button class="tap-btn" onclick="tap()">💎 АЛМАЗ</button></div>
     
-    <div class="click-zone">
-        <button class="tap-btn" onclick="tap()">ТАП</button>
+    <!-- Форма входа для секретных кодов -->
+    <div class="promo-box">
+        <input type="text" id="promo-code" class="promo-input" placeholder="СЕКРЕТНЫЙ КОД..." />
+        <button class="promo-btn" onclick="usePromo()">ВВЕСТИ</button>
     </div>
-    
-    <button class="reset-btn" id="reset-button" onclick="triggerReset()">🎰 СБРОС (ОТ 1 МЛН XP)</button>
 
+    <button class="reset-btn" id="reset-button" onclick="triggerReset()">🎰 СБРОС (ОТ 1 МЛН XP)</button>
     <div class="shop">
         <div class="shop-title">📦 НЕЙРОМАРКЕТ</div>
         <div class="shop-grid" id="shop-container"></div>
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+        const tg = window.Telegram.WebApp; tg.expand();
+        let exp = 0; let clickPower = 1; let autoCps = 0; let crystals = 0; let maxOfflineHours = 1; 
+        let boughtIds = []; let usedPromos = [];
 
-        let exp = 0;
-        let clickPower = 1;
-        let autoCps = 0;
-        let crystals = 0;
-        let maxOfflineHours = 1;
-        let boughtIds = [];
+        // 10 уникальных промокодов
+        const promoCodes = {
+            "PROMOKOD": 100,
+            "PROCLIKER": 100,
+            "BONUS100": 100,
+            "GEMSTART": 100,
+            "LUCKY100": 100,
+            "SILVERPASS": 1000,
+            "MEGASECRET": 1000,
+            "SUPERGEM2026": 1000,
+            "GOLDENKING": 10000,
+            "CYBERLEGEND2026": 100000
+        };
 
         const passiveItems = [
-            {id: 1, name: "Палка", cost: 100, cps: 10},
-            {id: 2, name: "Ручка", cost: 500, cps: 50},
-            {id: 3, name: "Тетрадь", cost: 1000, cps: 100},
-            {id: 4, name: "Тарелка", cost: 5000, cps: 250},
-            {id: 5, name: "Телефон", cost: 15000, cps: 500},
-            {id: 6, name: "Компьютер", cost: 20000, cps: 1000},
-            {id: 7, name: "Механизм", cost: 50000, cps: 2000},
-            {id: 8, name: "Лимит офлайна (2ч)", cost: 100000, cps: 0, special: "time2"},
-            {id: 9, name: "Электричество", cost: 500000, cps: 5000},
-            {id: 10, name: "Химия", cost: 1000000, cps: 10000},
-            {id: 11, name: "Физика", cost: 100000000, cps: 15000},
-            {id: 12, name: "Квантовая Физика", cost: 1000000000, cps: 30000},
-            {id: 13, name: "Робот", cost: 5000000000, cps: 400000},
-            {id: 14, name: "Космич. Робототехника", cost: 10000000000, cps: 750000},
-            {id: 15, name: "Компьютерное Моделир.", cost: 100000000000, cps: 1000000},
-            {id: 16, name: "Лимит офлайна (4ч)", cost: 1000000000000, cps: 0, special: "time4"},
-            {id: 17, name: "Интернет", cost: 100000000000000, cps: 250000000},
-            {id: 18, name: "ИИ", cost: 500
+            {id: 1, name: "Палка", cost: 100, cps: 10}, {id: 2, name: "Ручка", cost: 500, cps: 50},
+            {id: 3, name: "Тетрадь", cost: 1000, cps: 100}, {id: 4, name: "Тарелка", cost: 5000, cps: 250},
+            {id: 5, name: "Телефон", cost: 15000, cps: 500}, {id: 6, name: "Компьютер", cost: 20000, cps: 1000},
+            {id: 7, name: "Механизм", cost: 50000, cps: 2000}, {id: 8, name: "Лимит офлайна (2ч)", cost: 100000, cps: 0, special: "time2"},
+            {id: 9, name: "Электричество", cost: 500000, cps: 5000}, {id: 10, name: "Химия", cost: 1000000, cps: 10000},
+            {id: 11, name: "Физика", cost: 100000000, cps: 15000}, {id: 12, name: "Квантовая Физика", cost: 1000000000, cps: 30000},
+            {id: 13, name: "Робот", cost: 5000000000, cps: 400000}, {id: 14, name: "Космич. Робототехника", cost: 10000000000, cps: 750000},
+            {id: 15, name: "Компьютерное Моделир.", cost: 100000000000, cps: 1000000}, {id: 16, name: "Лимит офлайна (4ч)", cost: 1000000000000, cps: 0, special: "time4"},
+            {id: 17, name: "Интернет", cost: 100000000000000, cps: 250000000}, {id: 18, name: "ИИ", cost: 500000000000000, cps: 1000000000}
+        ];
+
+        const urlParams = new URLSearchParams(window.location.search); const startApp = urlParams.get('startapp');
+        if (startApp) {
+            try {
+                const decodedData = JSON.parse(decodeURIComponent(startApp));
+                exp = Number(decodedData.exp) || 0; clickPower = Number(decodedData.clickPower) || 1;
+                autoCps = Number(decodedData.autoCps) || 0; crystals = Number(decodedData.crystals) || 0;
+                maxOfflineHours = Number(decodedData.maxOfflineHours) || 1; boughtIds = decodedData.boughtIds || [];
+                usedPromos = decodedData.usedPromos || [];
+            } catch (e) { console.error("Ошибка парсинга данных старта", e); }
+        }
+
+        function formatNum(num) {
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + " трлн";
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + " млрд";
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + " млн";
+            return num.toLocaleString('ru-RU');
+        }
+
+        function updateUI() {
+            document.getElementById("exp-counter").innerText = formatNum(exp) + " XP";
+            document.getElementById("click-power").innerText = `👆 Клик: +${formatNum(clickPower)}`;
+            document.getElementById("cps-view").innerText = `⚙️ Авто: ${formatNum(autoCps)}/с`;
+            document.getElementById("crystals-view").innerText = `💎 Алмазы: ${formatNum(crystals)}`;
+            const resetBtn = document.getElementById("reset-button");
+            if (exp >= 1000000) {
+                resetBtn.disabled = false; resetBtn.innerText = `🎰 СБРОС (ПОЛУЧИТЬ +${Math.floor(exp / 1000000)} АЛМАЗОВ)`;
+            } else { resetBtn.disabled = true; resetBtn.innerText = "🎰 СБРОС (ОТ 1 МЛН XP)"; }
+            renderShop();
+        }
+
+        function tap() { let power = Number(clickPower) || 1; exp += power; updateUI(); }
+
+        function usePromo() {
+            const input = document.getElementById("promo-code");
+            const code = input.value.trim().toUpperCase();
+            
+            if (!code) return;
+
+            if (usedPromos.includes(code)) {
+                alert("❌ Этот код уже использован!");
+            } else if (promoCodes[code]) {
+                const reward = promoCodes[code];
+                crystals += reward;
+                usedPromos.push(code);
+                alert(`🎉 Успех! Получено +${formatNum(reward)} 💎 Алмазов!`);
+                updateUI();
+                saveGame();
+            } else {
+                alert("❌ Неверный секретный код!");
+            }
+            input.value = "";
+        }
+
+        function renderShop() {
+            const container = document.getElementById("shop-container"); container.innerHTML = "";
+            passiveItems.forEach(item => {
+                const isBought = boughtIds.includes(item.id); const btn = document.createElement("button"); btn.className = "shop-btn";
+                let bonusText = `+${formatNum(item.cps)} XP/сек`;
+                if (item.special === "time2") bonusText = "Офлайн лимит: 2 часа";
+                if (item.special === "time4") bonusText = "Офлайн лимит: 4 часа";
+                btn.innerHTML = `<div class="info"><span class="name">${item.name}</span><span class="bonus">${bonusText}</span></div><span class="cost">${isBought ? "КУПЛЕНО" : formatNum(item.cost) + " XP"}</span>`;
+                if (isBought || exp < item.cost) { btn.disabled = true; }
+                btn.onclick = () => buyItem(item); container.appendChild(btn);
+            });
+        }
+
+        function buyItem(item) {
+            if (exp >= item.cost && !boughtIds.includes(item.id)) {
+                exp -= item.cost;
+                if (item.special === "time2") { maxOfflineHours = 2; boughtIds.push(item.id); }
+                else if (item.special === "time4") { maxOfflineHours = 4; boughtIds.push(item.id); }
+                else { autoCps += item.cps; clickPower += Math.max(1, Math.floor(item.cps * 0.1)); }
+                updateUI(); saveGame();
+            }
+        }
+
+        function saveGame() {
+            const data = { action: "save", exp: exp, clickPower: clickPower, autoCps: autoCps, maxOfflineHours: maxOfflineHours, boughtIds: boughtIds, usedPromos: usedPromos };
+            tg.sendData(JSON.stringify(data));
+        }
+
+        function triggerReset() {
+            if (exp >= 1000000) {
+                const reward = Math.floor(exp / 1000000); const data = { action: "reset", reward: reward };
+                tg.sendData(JSON.stringify(data)); tg.close();
+            }
+        }
+
+        setInterval(() => { if (autoCps > 0) { exp += autoCps; updateUI(); } }, 1000);
+        setInterval(() => { saveGame(); }, 10000);
+        updateUI();
+    </script>
+</body>
+</html>
