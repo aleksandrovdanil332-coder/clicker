@@ -73,28 +73,25 @@
     <script>
         const tg = window.Telegram.WebApp; tg.expand();
         
-        let exp = 0;
-        let clickPower = 1;
-        let autoCps = 0;
-        let crystals = 0;
-        let maxOfflineHours = 1;
-        let boughtIds = [];
-        let usedPromos = [];
+        // Загрузка состояния
+        let exp = Number(localStorage.getItem("exp")) || 0;
+        let clickPower = Number(localStorage.getItem("clickPower")) || 1;
+        let autoCps = Number(localStorage.getItem("autoCps")) || 0;
+        let crystals = Number(localStorage.getItem("crystals")) || 0;
+        let lastLeave = Number(localStorage.getItem("lastLeave")) || Date.now();
+        let maxOfflineHours = Number(localStorage.getItem("maxOfflineHours")) || 1;
+        let boughtIds = JSON.parse(localStorage.getItem("boughtIds") || "[]");
+        let usedPromos = JSON.parse(localStorage.getItem("usedPromos") || "[]");
 
-        // Чтение данных, переданных ботом
-        const urlParams = new URLSearchParams(window.location.search);
-        const startApp = urlParams.get('startapp');
-        if (startApp) {
-            try {
-                const data = JSON.parse(decodeURIComponent(startApp));
-                exp = Number(data.exp) || 0;
-                clickPower = Number(data.clickPower) || 1;
-                autoCps = Number(data.autoCps) || 0;
-                crystals = Number(data.crystals) || 0;
-                maxOfflineHours = Number(data.maxOfflineHours) || 1;
-                boughtIds = data.boughtIds || [];
-                usedPromos = data.usedPromos || [];
-            } catch (e) { console.error("Ошибка загрузки данных", e); }
+        // Расчёт офлайн-дохода
+        const now = Date.now();
+        const secondsAway = Math.floor((now - lastLeave) / 1000);
+        if (autoCps > 0 && secondsAway > 5) {
+            const maxSec = maxOfflineHours * 3600;
+            const actualSec = Math.min(secondsAway, maxSec);
+            const gained = actualSec * autoCps;
+            exp += gained;
+            alert(`💤 Пока вас не было (${actualSec} сек), получено: +${gained} XP!`);
         }
 
         const promoCodes = {
@@ -119,10 +116,15 @@
 
         function formatNum(num) { return num.toLocaleString('ru-RU'); }
 
-        function saveData() {
-            tg.sendData(JSON.stringify({
-                action: "save", exp, clickPower, autoCps, crystals, maxOfflineHours, boughtIds, usedPromos
-            }));
+        function saveLocal() {
+            localStorage.setItem("exp", exp);
+            localStorage.setItem("clickPower", clickPower);
+            localStorage.setItem("autoCps", autoCps);
+            localStorage.setItem("crystals", crystals);
+            localStorage.setItem("lastLeave", Date.now());
+            localStorage.setItem("maxOfflineHours", maxOfflineHours);
+            localStorage.setItem("boughtIds", JSON.stringify(boughtIds));
+            localStorage.setItem("usedPromos", JSON.stringify(usedPromos));
         }
 
         function updateUI() {
@@ -131,6 +133,7 @@
             document.getElementById("cps-view").innerText = `⚙️ Авто: ${formatNum(autoCps)}/с`;
             document.getElementById("crystals-view").innerText = `💎 Алмазы: ${formatNum(crystals)}`;
             renderShops();
+            saveLocal();
         }
 
         function tap() { exp += clickPower; updateUI(); }
@@ -146,7 +149,6 @@
                 usedPromos.push(code);
                 alert(`🎉 Код активирован! Получено +${formatNum(reward)} XP!`);
                 updateUI();
-                saveData();
             } else {
                 alert("❌ Неверный код!");
             }
@@ -159,7 +161,7 @@
                 const btn = document.createElement("button"); btn.className = "shop-btn";
                 btn.innerHTML = `<span>${item.name}</span><span class="cost">${formatNum(item.cost)} XP</span>`;
                 btn.disabled = exp < item.cost;
-                btn.onclick = () => { if(exp >= item.cost) { exp -= item.cost; clickPower += item.power; updateUI(); saveData(); } };
+                btn.onclick = () => { if(exp >= item.cost) { exp -= item.cost; clickPower += item.power; updateUI(); } };
                 cContainer.appendChild(btn);
             });
 
@@ -176,7 +178,6 @@
                         if(item.time) maxOfflineHours = item.time;
                         else autoCps += item.cps;
                         updateUI();
-                        saveData();
                     }
                 };
                 aContainer.appendChild(btn);
@@ -184,7 +185,11 @@
         }
 
         setInterval(() => { if (autoCps > 0) { exp += autoCps; updateUI(); } }, 1000);
-        setInterval(() => { saveData(); }, 5000);
+        setInterval(() => {
+            tg.sendData(JSON.stringify({
+                action: "save", exp, clickPower, autoCps, crystals, maxOfflineHours, boughtIds, usedPromos
+            }));
+        }, 5000);
 
         updateUI();
     </script>
