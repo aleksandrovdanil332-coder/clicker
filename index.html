@@ -15,15 +15,15 @@
             font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg-grad);
             color: #ffffff; text-align: center; margin: 0; padding: 15px; user-select: none;
         }
-        .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+        .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 15px; }
         .stat-card {
-            background: var(--card-bg); border: 1px solid var(--card-border); padding: 10px 4px;
-            border-radius: 14px; font-size: 11px; font-weight: 600;
+            background: var(--card-bg); border: 1px solid var(--card-border); padding: 8px 4px;
+            border-radius: 14px; font-size: 10px; font-weight: 600;
         }
         #click-power { color: #00f2fe; }
         #cps-view { color: #ff007f; }
-        #crystals-view { color: #00ff87; font-weight: bold; }
-        .counter { font-size: 40px; font-weight: 900; margin: 10px 0; word-break: break-all; }
+        #reforge-view { color: #ff9900; }
+        .counter { font-size: 36px; font-weight: 900; margin: 15px 0; color: #00ff87; word-break: break-all; }
         .tap-btn {
             width: 140px; height: 140px; border-radius: 50%; border: none;
             background: radial-gradient(circle at 30% 30%, #00f2fe 0%, #4facfe 100%); color: white;
@@ -35,13 +35,14 @@
         .promo-btn { background: #00f2fe; color: #000; border: none; border-radius: 10px; font-weight: 800; padding: 0 14px; cursor: pointer; }
         
         .shop-section { margin-top: 15px; text-align: left; }
-        .shop-title { font-size: 14px; font-weight: bold; color: #a5b4fc; margin-bottom: 8px; }
-        .shop-grid { display: flex; flex-direction: column; gap: 8px; max-height: 25vh; overflow-y: auto; }
+        .shop-title { font-size: 13px; font-weight: bold; color: #a5b4fc; margin-bottom: 8px; }
+        .shop-grid { display: flex; flex-direction: column; gap: 8px; max-height: 22vh; overflow-y: auto; }
         .shop-btn {
             background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); color: white;
             padding: 10px; font-size: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;
         }
         .shop-btn .cost { color: #00ff87; font-weight: bold; }
+        .shop-btn .reforge-cost { color: #ff9900; font-weight: bold; }
         .shop-btn:disabled { opacity: 0.3; }
     </style>
 </head>
@@ -49,14 +50,14 @@
     <div class="stats-container">
         <div class="stat-card" id="click-power">👆 Клик: +1</div>
         <div class="stat-card" id="cps-view">⚙️ Авто: 0/с</div>
-        <div class="stat-card" id="crystals-view">💎 Алмазы: 0</div>
+        <div class="stat-card" id="reforge-view">🔥 Опыт: 0</div>
     </div>
 
-    <div class="counter" id="exp-counter">0 XP</div>
+    <div class="counter" id="crystals-counter">0 💎</div>
     <button class="tap-btn" onclick="tap()">💎 АЛМАЗ</button>
 
     <div class="promo-box">
-        <input type="text" id="promo-code" class="promo-input" placeholder="КОД НА XP..." />
+        <input type="text" id="promo-code" class="promo-input" placeholder="ПРОМОКОД..." />
         <button class="promo-btn" onclick="usePromo()">ВВОД</button>
     </div>
 
@@ -70,28 +71,34 @@
         <div class="shop-grid" id="auto-shop"></div>
     </div>
 
+    <div class="shop-section">
+        <div class="shop-title">🔥 УЛУЧШЕНИЯ ПЕРЕЗАКАЛКИ</div>
+        <div class="shop-grid" id="reforge-shop"></div>
+    </div>
+
     <script>
-        const tg = window.Telegram.WebApp; tg.expand();
+        const tg = window.Telegram.WebApp; 
+        tg.expand();
+        tg.ready();
         
-        // Загрузка состояния
-        let exp = Number(localStorage.getItem("exp")) || 0;
+        let crystals = Number(localStorage.getItem("crystals")) || 0;
         let clickPower = Number(localStorage.getItem("clickPower")) || 1;
         let autoCps = Number(localStorage.getItem("autoCps")) || 0;
-        let crystals = Number(localStorage.getItem("crystals")) || 0;
+        let reforgeExp = Number(localStorage.getItem("reforgeExp")) || 0;
         let lastLeave = Number(localStorage.getItem("lastLeave")) || Date.now();
         let maxOfflineHours = Number(localStorage.getItem("maxOfflineHours")) || 1;
         let boughtIds = JSON.parse(localStorage.getItem("boughtIds") || "[]");
         let usedPromos = JSON.parse(localStorage.getItem("usedPromos") || "[]");
 
-        // Расчёт офлайн-дохода
+        // Расчет офлайн-дохода
         const now = Date.now();
         const secondsAway = Math.floor((now - lastLeave) / 1000);
         if (autoCps > 0 && secondsAway > 5) {
             const maxSec = maxOfflineHours * 3600;
             const actualSec = Math.min(secondsAway, maxSec);
             const gained = actualSec * autoCps;
-            exp += gained;
-            alert(`💤 Пока вас не было (${actualSec} сек), получено: +${gained} XP!`);
+            crystals += gained;
+            alert(`💤 Пока вас не было (${actualSec} сек), получено: +${gained.toLocaleString('ru-RU')} 💎!`);
         }
 
         const promoCodes = {
@@ -114,13 +121,27 @@
             { id: 16, name: "Офлайн 4 часа", cost: 50000, cps: 0, time: 4 }
         ];
 
+        // НОВЫЕ ТОВАРЫ ЗА ОПЫТ ПЕРЕЗАКАЛКИ
+        const reforgeUpgrades = [
+            { id: 201, name: "💤 Офлайн кликер до 24 часов", cost: 10, type: "offline24" },
+            { id: 202, name: "🛡️ Сохранение 5% дохода при перезакалке", cost: 20, type: "keep5pct" }
+        ];
+
         function formatNum(num) { return num.toLocaleString('ru-RU'); }
 
+        function sendSaveToBot() {
+            try {
+                tg.sendData(JSON.stringify({
+                    action: "save", crystals, clickPower, autoCps, maxOfflineHours, boughtIds, usedPromos, reforgeExp
+                }));
+            } catch(e) {}
+        }
+
         function saveLocal() {
-            localStorage.setItem("exp", exp);
+            localStorage.setItem("crystals", crystals);
             localStorage.setItem("clickPower", clickPower);
             localStorage.setItem("autoCps", autoCps);
-            localStorage.setItem("crystals", crystals);
+            localStorage.setItem("reforgeExp", reforgeExp);
             localStorage.setItem("lastLeave", Date.now());
             localStorage.setItem("maxOfflineHours", maxOfflineHours);
             localStorage.setItem("boughtIds", JSON.stringify(boughtIds));
@@ -128,15 +149,15 @@
         }
 
         function updateUI() {
-            document.getElementById("exp-counter").innerText = formatNum(exp) + " XP";
+            document.getElementById("crystals-counter").innerText = formatNum(crystals) + " 💎";
             document.getElementById("click-power").innerText = `👆 Клик: +${formatNum(clickPower)}`;
             document.getElementById("cps-view").innerText = `⚙️ Авто: ${formatNum(autoCps)}/с`;
-            document.getElementById("crystals-view").innerText = `💎 Алмазы: ${formatNum(crystals)}`;
+            document.getElementById("reforge-view").innerText = `🔥 Опыт: ${formatNum(reforgeExp)}`;
             renderShops();
             saveLocal();
         }
 
-        function tap() { exp += clickPower; updateUI(); }
+        function tap() { crystals += clickPower; updateUI(); }
 
         function usePromo() {
             const input = document.getElementById("promo-code");
@@ -145,10 +166,11 @@
                 alert("❌ Код уже использован!");
             } else if (promoCodes[code]) {
                 const reward = promoCodes[code];
-                exp += reward;
+                crystals += reward;
                 usedPromos.push(code);
-                alert(`🎉 Код активирован! Получено +${formatNum(reward)} XP!`);
+                alert(`🎉 Код активирован! Получено +${formatNum(reward)} 💎!`);
                 updateUI();
+                sendSaveToBot();
             } else {
                 alert("❌ Неверный код!");
             }
@@ -156,40 +178,65 @@
         }
 
         function renderShops() {
+            // Клик
             const cContainer = document.getElementById("click-shop"); cContainer.innerHTML = "";
             clickUpgrades.forEach(item => {
                 const btn = document.createElement("button"); btn.className = "shop-btn";
-                btn.innerHTML = `<span>${item.name}</span><span class="cost">${formatNum(item.cost)} XP</span>`;
-                btn.disabled = exp < item.cost;
-                btn.onclick = () => { if(exp >= item.cost) { exp -= item.cost; clickPower += item.power; updateUI(); } };
+                btn.innerHTML = `<span>${item.name}</span><span class="cost">${formatNum(item.cost)} 💎</span>`;
+                btn.disabled = crystals < item.cost;
+                btn.onclick = () => { 
+                    if(crystals >= item.cost) { 
+                        crystals -= item.cost; 
+                        clickPower += item.power; 
+                        updateUI(); 
+                        sendSaveToBot();
+                    } 
+                };
                 cContainer.appendChild(btn);
             });
 
+            // Авто
             const aContainer = document.getElementById("auto-shop"); aContainer.innerHTML = "";
             autoUpgrades.forEach(item => {
                 const isBought = boughtIds.includes(item.id);
                 const btn = document.createElement("button"); btn.className = "shop-btn";
-                btn.innerHTML = `<span>${item.name}</span><span class="cost">${isBought ? "КУПЛЕНО" : formatNum(item.cost) + " XP"}</span>`;
-                btn.disabled = isBought || exp < item.cost;
+                btn.innerHTML = `<span>${item.name}</span><span class="cost">${isBought ? "КУПЛЕНО" : formatNum(item.cost) + " 💎"}</span>`;
+                btn.disabled = isBought || crystals < item.cost;
                 btn.onclick = () => {
-                    if(exp >= item.cost && !isBought) {
-                        exp -= item.cost;
+                    if(crystals >= item.cost && !isBought) {
+                        crystals -= item.cost;
                         boughtIds.push(item.id);
                         if(item.time) maxOfflineHours = item.time;
                         else autoCps += item.cps;
                         updateUI();
+                        sendSaveToBot();
                     }
                 };
                 aContainer.appendChild(btn);
             });
+
+            // Магазин перезакалки
+            const rContainer = document.getElementById("reforge-shop"); rContainer.innerHTML = "";
+            reforgeUpgrades.forEach(item => {
+                const isBought = boughtIds.includes(item.id);
+                const btn = document.createElement("button"); btn.className = "shop-btn";
+                btn.innerHTML = `<span>${item.name}</span><span class="reforge-cost">${isBought ? "КУПЛЕНО" : item.cost + " 🔥 EXP"}</span>`;
+                btn.disabled = isBought || reforgeExp < item.cost;
+                btn.onclick = () => {
+                    if(reforgeExp >= item.cost && !isBought) {
+                        reforgeExp -= item.cost;
+                        boughtIds.push(item.id);
+                        if(item.type === "offline24") maxOfflineHours = 24;
+                        updateUI();
+                        sendSaveToBot();
+                    }
+                };
+                rContainer.appendChild(btn);
+            });
         }
 
-        setInterval(() => { if (autoCps > 0) { exp += autoCps; updateUI(); } }, 1000);
-        setInterval(() => {
-            tg.sendData(JSON.stringify({
-                action: "save", exp, clickPower, autoCps, crystals, maxOfflineHours, boughtIds, usedPromos
-            }));
-        }, 5000);
+        setInterval(() => { if (autoCps > 0) { crystals += autoCps; updateUI(); } }, 1000);
+        setInterval(() => { sendSaveToBot(); }, 3000);
 
         updateUI();
     </script>
