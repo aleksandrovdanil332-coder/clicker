@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>⚡ CyberTap ⚡</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -14,6 +14,7 @@
         body {
             font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg-grad);
             color: #ffffff; text-align: center; margin: 0; padding: 12px; user-select: none;
+            overflow-x: hidden;
         }
         .daily-box {
             background: linear-gradient(90deg, #ff007f 0%, #7928ca 100%);
@@ -36,17 +37,28 @@
         #reforge-view { color: #ff9900; }
 
         .counter { font-size: 34px; font-weight: 900; margin: 8px 0; color: #00ff87; word-break: break-all; }
-        .tap-btn {
-            width: 120px; height: 120px; border-radius: 50%; border: none;
-            background: radial-gradient(circle at 30% 30%, #00f2fe 0%, #4facfe 100%); color: white;
-            font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 0 25px rgba(0, 242, 254, 0.4);
-            margin: 5px auto; display: block;
+
+        /* ИНТЕРАКТИВНАЯ ЗОНА С АЛМАЗОМ И ЧАСТИЦАМИ */
+        .tap-area {
+            position: relative; width: 140px; height: 140px; margin: 10px auto;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
-        .tap-btn:active { transform: scale(0.92); }
-        .save-btn {
-            background: #00ff87; color: #000; border: none; width: 100%; padding: 12px;
-            border-radius: 12px; font-weight: 900; margin-top: 10px; cursor: pointer; font-size: 13px;
+        .diamond-img {
+            font-size: 90px; filter: drop-shadow(0 0 20px #00f2fe);
+            transition: transform 0.05s ease;
         }
+        .tap-area:active .diamond-img { transform: scale(0.85); }
+
+        /* ЭФФЕКТЫ ЧАСТИЦ И КЛИКОВ */
+        .particle {
+            position: absolute; pointer-events: none; font-weight: 900;
+            animation: floatUp 0.8s ease-out forwards;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.5); }
+        }
+
         .promo-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 8px; border-radius: 12px; margin: 10px 0; display: flex; gap: 8px; }
         .promo-input { flex: 1; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--card-border); border-radius: 8px; color: #fff; padding: 8px; text-align: center; font-weight: bold; }
         .promo-btn { background: #00f2fe; color: #000; border: none; border-radius: 8px; font-weight: 800; padding: 0 12px; cursor: pointer; }
@@ -82,9 +94,11 @@
     </div>
 
     <div class="counter" id="crystals-counter">0 💎</div>
-    <button class="tap-btn" onclick="tap()">💎 АЛМАЗ</button>
-    
-    <button class="save-btn" onclick="sendSaveToBot(true)">💾 СОХРАНИТЬ В БОТА</button>
+
+    <!-- КЛИК-ЗОНА С АЛМАЗОМ -->
+    <div class="tap-area" id="tap-area" onclick="tap(event)">
+        <div class="diamond-img">💎</div>
+    </div>
 
     <div class="promo-box">
         <input type="text" id="promo-code" class="promo-input" placeholder="ПРОМОКОД..." />
@@ -203,7 +217,6 @@
                 alert(`🎉 Награда за День ${dailyDay}: +${formatNum(rewardAmount)} 💎!`);
                 dailyDay++;
                 updateUI();
-                sendSaveToBot();
             }
         }
 
@@ -226,18 +239,6 @@
             crystals += rewardCrystals;
             alert(`🎰 В Сундуке выпало: +${formatNum(rewardCrystals)} 💎!`);
             updateUI();
-        }
-
-        function sendSaveToBot(showAlert = false) {
-            const dataObj = {
-                action: "save", crystals, clickPower, autoCps, maxOfflineHours, boughtIds, usedPromos, reforgeExp, dailyDay, lastDailyClaim
-            };
-            try {
-                tg.sendData(JSON.stringify(dataObj));
-                if (showAlert) alert("✅ Прогресс сохранен!");
-            } catch(e) {
-                if (showAlert) alert("❌ Перезапустите игру из чата бота!");
-            }
         }
 
         function saveLocal() {
@@ -267,7 +268,51 @@
             saveLocal();
         }
 
-        function tap() { crystals += clickPower; updateUI(); }
+        // КЛИК И СПАВН ЧАСТИЦ
+        function tap(e) {
+            crystals += clickPower;
+
+            const area = document.getElementById("tap-area");
+            const rect = area.getBoundingClientRect();
+            
+            // Координаты клика
+            const x = e.clientX ? e.clientX - rect.left : rect.width / 2;
+            const y = e.clientY ? e.clientY - rect.top : rect.height / 2;
+
+            // Частицы-искры
+            for (let i = 0; i < 5; i++) {
+                const particle = document.createElement("div");
+                particle.className = "particle";
+                particle.innerText = Math.random() > 0.5 ? "✨" : "💎";
+                particle.style.left = x + "px";
+                particle.style.top = y + "px";
+                particle.style.fontSize = (12 + Math.random() * 10) + "px";
+                
+                const dx = (Math.random() - 0.5) * 120 + "px";
+                const dy = (Math.random() - 0.5) * 120 + "px";
+                particle.style.setProperty("--dx", dx);
+                particle.style.setProperty("--dy", dy);
+
+                area.appendChild(particle);
+                setTimeout(() => particle.remove(), 800);
+            }
+
+            // Текст урона/прироста
+            const text = document.createElement("div");
+            text.className = "particle";
+            text.innerText = `+${formatNum(clickPower)}`;
+            text.style.color = "#00ff87";
+            text.style.fontSize = "20px";
+            text.style.left = x + "px";
+            text.style.top = y + "px";
+            text.style.setProperty("--dx", (Math.random() - 0.5) * 40 + "px");
+            text.style.setProperty("--dy", "-80px");
+
+            area.appendChild(text);
+            setTimeout(() => text.remove(), 800);
+
+            updateUI();
+        }
 
         function usePromo() {
             const input = document.getElementById("promo-code");
@@ -280,7 +325,6 @@
                 usedPromos.push(code);
                 alert(`🎉 Получено +${formatNum(reward)} 💎!`);
                 updateUI();
-                sendSaveToBot();
             } else {
                 alert("❌ Неверный код!");
             }
