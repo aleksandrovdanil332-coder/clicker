@@ -38,7 +38,6 @@
 
         .counter { font-size: 34px; font-weight: 900; margin: 8px 0; color: #00ff87; word-break: break-all; }
 
-        /* ИНТЕРАКТИВНАЯ ЗОНА С АЛМАЗОМ И ЧАСТИЦАМИ */
         .tap-area {
             position: relative; width: 140px; height: 140px; margin: 10px auto;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -49,7 +48,6 @@
         }
         .tap-area:active .diamond-img { transform: scale(0.85); }
 
-        /* ЭФФЕКТЫ ЧАСТИЦ И КЛИКОВ */
         .particle {
             position: absolute; pointer-events: none; font-weight: 900;
             animation: floatUp 0.8s ease-out forwards;
@@ -57,6 +55,17 @@
         @keyframes floatUp {
             0% { opacity: 1; transform: translate(0, 0) scale(1); }
             100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.5); }
+        }
+
+        .reforge-btn {
+            background: linear-gradient(90deg, #ff9900 0%, #ff5500 100%);
+            color: #ffffff; border: none; width: 100%; padding: 14px;
+            border-radius: 12px; font-weight: 900; margin-top: 10px; cursor: pointer; font-size: 14px;
+            box-shadow: 0 0 15px rgba(255, 153, 0, 0.4);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .reforge-btn:disabled {
+            background: #333344; color: #777788; box-shadow: none; cursor: not-allowed;
         }
 
         .promo-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 8px; border-radius: 12px; margin: 10px 0; display: flex; gap: 8px; }
@@ -95,10 +104,11 @@
 
     <div class="counter" id="crystals-counter">0 💎</div>
 
-    <!-- КЛИК-ЗОНА С АЛМАЗОМ -->
     <div class="tap-area" id="tap-area" onclick="tap(event)">
         <div class="diamond-img">💎</div>
     </div>
+
+    <button class="reforge-btn" id="reforge-main-btn" onclick="executeReforge()">🔥 ПЕРЕЗАКАЛКА (от 1 млрд 💎)</button>
 
     <div class="promo-box">
         <input type="text" id="promo-code" class="promo-input" placeholder="ПРОМОКОД..." />
@@ -141,6 +151,7 @@
         tg.expand();
         tg.ready();
         
+        const REFORGE_LIMIT = 1000000000; // 1 Миллиард
         let crystals = Number(localStorage.getItem("crystals")) || 0;
         let clickPower = Number(localStorage.getItem("clickPower")) || 1;
         let autoCps = Number(localStorage.getItem("autoCps")) || 0;
@@ -220,6 +231,26 @@
             }
         }
 
+        function executeReforge() {
+            if (crystals < REFORGE_LIMIT) return;
+
+            // 1 млн 💎 = 1 EXP (1 млрд = 1000 EXP)
+            const earnedExp = Math.floor(crystals / 1000000);
+            
+            const hasKeep5Pct = boughtIds.includes(202);
+            const keepRatio = hasKeep5Pct ? 0.05 : 0;
+
+            crystals = Math.floor(crystals * keepRatio);
+            clickPower = 1 + Math.floor(clickPower * keepRatio);
+            autoCps = Math.floor(autoCps * keepRatio);
+            reforgeExp += earnedExp;
+
+            boughtIds = boughtIds.filter(id => id >= 200);
+
+            alert(`🔥 ПЕРЕЗАКАЛКА ВЫПОЛНЕНА!\n\nВы получили +${formatNum(earnedExp)} 🔥 EXP!`);
+            updateUI();
+        }
+
         function openLootbox() {
             const cost = 1000000;
             if (crystals < cost) return;
@@ -259,6 +290,16 @@
             document.getElementById("cps-view").innerText = `⚙️ Авто: ${formatNum(autoCps)}/с`;
             document.getElementById("reforge-view").innerText = `🔥 Опыт: ${formatNum(reforgeExp)}`;
             
+            const reforgeBtn = document.getElementById("reforge-main-btn");
+            if (crystals >= REFORGE_LIMIT) {
+                const potentialExp = Math.floor(crystals / 1000000);
+                reforgeBtn.disabled = false;
+                reforgeBtn.innerText = `🔥 ПЕРЕЗАКАЛКА (+${formatNum(potentialExp)} EXP)`;
+            } else {
+                reforgeBtn.disabled = true;
+                reforgeBtn.innerText = `🔥 ПЕРЕЗАКАЛКА (от 1 млрд 💎)`;
+            }
+
             const chestBtn = document.getElementById("chest-btn");
             chestBtn.disabled = crystals < 1000000;
             chestBtn.onclick = openLootbox;
@@ -268,18 +309,14 @@
             saveLocal();
         }
 
-        // КЛИК И СПАВН ЧАСТИЦ
         function tap(e) {
             crystals += clickPower;
 
             const area = document.getElementById("tap-area");
             const rect = area.getBoundingClientRect();
-            
-            // Координаты клика
             const x = e.clientX ? e.clientX - rect.left : rect.width / 2;
             const y = e.clientY ? e.clientY - rect.top : rect.height / 2;
 
-            // Частицы-искры
             for (let i = 0; i < 5; i++) {
                 const particle = document.createElement("div");
                 particle.className = "particle";
@@ -297,7 +334,6 @@
                 setTimeout(() => particle.remove(), 800);
             }
 
-            // Текст урона/прироста
             const text = document.createElement("div");
             text.className = "particle";
             text.innerText = `+${formatNum(clickPower)}`;
