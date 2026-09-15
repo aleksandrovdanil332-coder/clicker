@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ CyberTap | Квантовый Кликер ⚡</title>
+    <title>⚡ CyberTap ⚡</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -15,6 +15,17 @@
             font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg-grad);
             color: #ffffff; text-align: center; margin: 0; padding: 12px; user-select: none;
         }
+        .daily-box {
+            background: linear-gradient(90deg, #ff007f 0%, #7928ca 100%);
+            border-radius: 14px; padding: 8px; margin-bottom: 12px;
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+        }
+        .daily-btn {
+            background: #ffffff; color: #000; border: none; width: 100%; padding: 10px;
+            border-radius: 10px; font-weight: 900; font-size: 13px; cursor: pointer;
+        }
+        .daily-btn:disabled { opacity: 0.6; background: #ccc; cursor: not-allowed; }
+
         .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
         .stat-card {
             background: var(--card-bg); border: 1px solid var(--card-border); padding: 8px 4px;
@@ -23,17 +34,6 @@
         #click-power { color: #00f2fe; }
         #cps-view { color: #ff007f; }
         #reforge-view { color: #ff9900; }
-        
-        .daily-box {
-            background: linear-gradient(90deg, #ff007f 0%, #7928ca 100%);
-            border-radius: 14px; padding: 10px; margin-bottom: 10px;
-            box-shadow: 0 0 15px rgba(255, 0, 127, 0.3);
-        }
-        .daily-btn {
-            background: #ffffff; color: #000; border: none; width: 100%; padding: 10px;
-            border-radius: 10px; font-weight: 900; font-size: 13px; cursor: pointer;
-        }
-        .daily-btn:disabled { opacity: 0.5; background: #ccc; cursor: not-allowed; }
 
         .counter { font-size: 34px; font-weight: 900; margin: 8px 0; color: #00ff87; word-break: break-all; }
         .tap-btn {
@@ -65,6 +65,7 @@
 </head>
 <body>
 
+    <!-- ЕЖЕДНЕВНЫЙ БОНУС В САМОМ ВЕРХУ -->
     <div class="daily-box">
         <button class="daily-btn" id="daily-reward-btn" onclick="claimDailyReward()">🎁 Забрать бонус</button>
     </div>
@@ -168,7 +169,7 @@
             } else {
                 btn.disabled = true;
                 const hoursLeft = Math.ceil((oneDayMs - (now - lastDailyClaim)) / (1000 * 60 * 60));
-                btn.innerText = `⏳ Следующий бонус через ${hoursLeft}ч (День ${dailyDay})`;
+                btn.innerText = `⏳ Бонус День ${dailyDay} через ${hoursLeft}ч`;
             }
         }
 
@@ -179,7 +180,7 @@
                 const rewardAmount = calculateDailyReward(dailyDay);
                 crystals += rewardAmount;
                 lastDailyClaim = now;
-                alert(`🎉 Награда за День ${dailyDay}: +${formatNum(rewardAmount)} 💎!`);
+                alert(`🎉 Вы получили бонус за День ${dailyDay}: +${formatNum(rewardAmount)} 💎!`);
                 dailyDay++;
                 updateUI();
                 sendSaveToBot();
@@ -192,7 +193,7 @@
             let rand = Math.random() * 100;
             let rewardCrystals = rand < 90 ? getRandomInt(1000, 5000) : (rand < 98.9 ? getRandomInt(5001, 30000) : getRandomInt(30001, 100000));
             crystals += rewardCrystals;
-            alert(`🎰 В Сундуке выпало +${formatNum(rewardCrystals)} 💎!`);
+            alert(`🎰 Выиграно +${formatNum(rewardCrystals)} 💎!`);
         }
 
         function sendSaveToBot(showAlert = false) {
@@ -201,9 +202,9 @@
             };
             try {
                 tg.sendData(JSON.stringify(dataObj));
-                if (showAlert) alert("✅ Прогресс отправлен боту!");
+                if (showAlert) alert("✅ Прогресс сохранен!");
             } catch(e) {
-                if (showAlert) alert("❌ Сохранение доступно только внутри Telegram!");
+                if (showAlert) alert("❌ Ошибка сохранения");
             }
         }
 
